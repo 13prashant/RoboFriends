@@ -6,38 +6,38 @@ import './App.css';
 import Scroll from './components/Scroll'
 import ErrorBoundary from './components/ErrorBoundary'
 
-import { setSearchField } from './actions'
+import { setSearchField, requestRobots } from './actions'
 
 const mapStateToProps = (state) => {
     return {
-        searchField: state.searchField
+        searchField: state.searchRobots.searchField,
+        robots: state.requestRobots.robots,
+        isPending: state.requestRobots.isPending,
+        error: state.requestRobots.error
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        handleSearchChange: (e) => dispatch(setSearchField(e.target.value))
+        handleSearchChange: (e) => dispatch(setSearchField(e.target.value)),
+        handleRequestRobots: () => dispatch(requestRobots())
     }
 }
 
 const App = (props) => {
 
-    const [robots, setRobots] = useState([])
-
     useEffect(() => {
-        fetch('https://jsonplaceholder.typicode.com/users')
-            .then(response => response.json())
-            .then(users => setRobots(users))
+        props.handleRequestRobots()
     }, [])
 
-    const { searchField, handleSearchChange } = props
+    const { searchField, handleSearchChange, robots, isPending } = props
 
     const filteredRobots = robots.filter(robot =>
         robot.name.toLowerCase().includes(searchField.toLowerCase())
     )
 
     return (
-        !robots.length ?
+        isPending ?
             <h1 className='tc'>Loading...</h1> :
             <div className='tc'>
                 <h1 className='f1'>RoboFriends</h1>
